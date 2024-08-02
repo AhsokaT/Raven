@@ -1,24 +1,30 @@
 import assert from 'assert/strict';
 import { MongoClient } from 'mongodb';
 import { House } from '../util/enum.js';
-import { HousePointCache } from './HousePointCache.js';
 
 export class DatabaseConnection implements AsyncDisposable {
     private constructor(readonly mongo: MongoClient) {}
 
     async [Symbol.asyncDispose]() {
         await this.mongo.close();
+        console.log('[DATABASE] => Connection closed.');
     }
 
     async patch(data: [id: House.id, points: number][]) {
-        const operations = data.map(([id, points]) => ({
-            updateOne: { filter: { _id: id }, update: { $set: { points } } },
-        }));
+        console.log('[DATABASE] => Patching house points:', data);
+        if (data.length === 0) return this.fetch();
+
+        const dbOperation = ([id, points]: [id: House.id, points: number]) => ({
+            updateOne: {
+                filter: { _id: id },
+                update: { $set: { points } },
+            },
+        });
 
         const result = await this.mongo
             .db('Raven')
             .collection<House.Document>('Houses')
-            .bulkWrite(operations);
+            .bulkWrite(data.map(dbOperation));
 
         if (!result.ok)
             console.warn(
@@ -28,14 +34,13 @@ export class DatabaseConnection implements AsyncDisposable {
         return this.fetch();
     }
 
-    async fetch() {
-        const houses = await this.mongo
+    fetch(): AsyncGenerator<readonly [House.id, number], void, void> {
+        return this.mongo
             .db('Raven')
             .collection<House.Document>('Houses')
             .find()
-            .toArray();
-
-        return new HousePointCache(houses.map((house) => [house._id, house.points]));
+            .map((house) => [house._id, house.points] as const)
+            [Symbol.asyncIterator]();
     }
 
     static async connect(url = process.env.MONGO_URL) {
