@@ -37,8 +37,12 @@ export class HouseStore extends Map<House.id, number> {
         return [...this.entries()].sort(([, a], [, b]) => b - a);
     }
 
+    indexOf(id: House.id): number {
+        return this.toSorted().findIndex(([name]) => name === id);
+    }
+
     position(id: House.id): number {
-        return this.toSorted().findIndex(([name]) => name === id) + 1;
+        return this.indexOf(id) + 1;
     }
 
     copy() {

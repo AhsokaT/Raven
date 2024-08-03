@@ -2,9 +2,8 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { ActionRowBuilder, MessageActionRowComponentBuilder } from 'discord.js';
 import {
-    DeleteInteractionButton,
-    LeaderboardEmbed,
-    UpdateLeaderboardButton,
+    createLeaderboardEmbed,
+    createUpdateLeaderboardButton,
 } from '../util/builders.js';
 
 @ApplyOptions<Command.Options>({
@@ -14,11 +13,10 @@ import {
 export class Leaderboard extends Command {
     async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
         await interaction.reply({
-            embeds: [LeaderboardEmbed(interaction.client)],
+            embeds: [createLeaderboardEmbed(interaction.client.store)],
             components: [
                 new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-                    UpdateLeaderboardButton(),
-                    DeleteInteractionButton()
+                    createUpdateLeaderboardButton()
                 ),
             ],
             allowedMentions: { parse: [] },

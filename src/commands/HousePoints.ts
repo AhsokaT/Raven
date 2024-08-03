@@ -12,7 +12,9 @@ import {
 import { promisify } from 'util';
 import {
     allPointChangeEmbed,
-    LeaderboardButton,
+    createHouseUpdateEmbed,
+    createLeaderboardButton,
+    createSeeAllChangesButton,
     pointChangeButton,
     pointChangeEmbed,
 } from '../util/builders.js';
@@ -205,23 +207,30 @@ export class HousePointsCommand extends Command {
                 components: [],
             });
 
-            for (const houseId of House.ids) {
-                if (newTotals[houseId] === current[houseId]) continue;
+            // const logChannel = await client.channels.fetch(ChannelId.Logs);
+            // const log = logChannel?.isTextBased()
+            //     ? await logChannel.send('')
+            //     : null;
 
-                const changeButton = pointChangeButton(current, newTotals);
+            for (const house of House.ALL) {
+                if (newTotals[house.id] === current[house.id]) continue;
+
                 const actionRow =
                     new ActionRowBuilder<MessageActionRowComponentBuilder>();
-                const embed = pointChangeEmbed(
-                    houseId,
-                    current[houseId],
-                    newTotals[houseId],
-                    interaction.user
+                const embed = createHouseUpdateEmbed(
+                    house,
+                    current[house.id],
+                    newTotals[house.id],
+                    interaction.user,
+                    client.store
                 );
-                const house = House[houseId];
 
-                if (changeButton)
-                    actionRow.addComponents(changeButton, LeaderboardButton());
-                else actionRow.addComponents(LeaderboardButton());
+                // if (log)
+                //     actionRow.addComponents(
+                //         createLeaderboardButton(),
+                //         createSeeAllChangesButton(log.url)
+                //     );
+                actionRow.addComponents(createLeaderboardButton());
 
                 try {
                     const channel = await client.channels.fetch(
@@ -263,7 +272,7 @@ export class HousePointsCommand extends Command {
                         allowedMentions: { parse: [] },
                         components: [
                             new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-                                LeaderboardButton()
+                                createLeaderboardButton()
                             ),
                         ],
                     });

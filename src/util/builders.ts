@@ -8,6 +8,7 @@ import {
 import { Client } from '../client/client.js';
 import { House } from './enum.js';
 import { toOrdinal } from './util.js';
+import { HouseStore } from '../structs/HouseStore.js';
 
 const padLength = (strs: string[]) =>
     strs.slice().sort((a, b) => b.length - a.length)[0].length + 1;
@@ -138,28 +139,10 @@ export const UserInfoButton = (user: Snowflake, label = 'User') =>
         .setStyle(ButtonStyle.Primary)
         .setLabel(label);
 
-export const LeaderboardButton = (label = 'Leaderboard') =>
-    new ButtonBuilder()
-        .setCustomId('LEADERBOARD')
-        .setStyle(ButtonStyle.Primary)
-        .setLabel(label);
-
 export const HouseInfoButton = (house: House.id, label = 'House') =>
     new ButtonBuilder()
         .setCustomId(`HOUSEINFO_${house}`)
         .setStyle(ButtonStyle.Primary)
-        .setLabel(label);
-
-export const RevokeBanButton = (user: Snowflake, label = 'Revoke ban') =>
-    new ButtonBuilder()
-        .setCustomId(`UNBAN_${user}`)
-        .setStyle(ButtonStyle.Danger)
-        .setLabel(label);
-
-export const BanButton = (user: Snowflake, label = 'Ban') =>
-    new ButtonBuilder()
-        .setCustomId(`BAN_${user}`)
-        .setStyle(ButtonStyle.Danger)
         .setLabel(label);
 
 function housePosition(
@@ -185,3 +168,101 @@ export const LeaderboardEmbed = (client: Client) =>
                     `Refreshed <t:${Math.round(Date.now() / 1000)}:R>\n`
                 )
         );
+
+export function createLeaderboardEmbed(store: HouseStore) {
+    function createField([id, points]: [House.id, number], index: number) {
+        let house = House[id];
+        let name = `${toOrdinal(index + 1)} ${house.name} ${house.emoji}`;
+        let value = `${points} points`;
+        return { name, value };
+    }
+
+    return new EmbedBuilder()
+        .setColor('#2B2D31')
+        .setTitle(':trophy: Leaderboard')
+        .setDescription(
+            `-# Last updated <t:${Math.round(Date.now() / 1000)}:R>`
+        )
+        .addFields(store.toSorted().map(createField));
+}
+
+export function createLeaderboardButton(label = 'See leaderboard') {
+    return new ButtonBuilder()
+        .setCustomId('LEADERBOARD')
+        .setLabel(label)
+        .setStyle(ButtonStyle.Primary);
+}
+
+export function createHouseUpdateEmbed(
+    house: House,
+    before: number,
+    after: number,
+    author: User,
+    store: HouseStore
+) {
+    let diff = after - before;
+    let index = store.indexOf(house.id);
+    let inFront = store.toSorted()[index - 1];
+    let behind = store.toSorted()[index + 1];
+    let inFrontStr = inFront
+        ? `, in front of ${House[inFront[0]].roleMention}`
+        : '';
+    let behindStr = behind
+        ? `${inFront ? ' and ' : ', '}behind ${House[behind[0]].roleMention}`
+        : '';
+
+    let positionStr = `You are ${toOrdinal(
+        index + 1
+    )}${inFrontStr}${behindStr}`;
+
+    const embed = new EmbedBuilder()
+        .setColor('#2B2D31')
+        .setAuthor({
+            name: author.username,
+            iconURL: author.displayAvatarURL(),
+        })
+        .setTitle(`Points ${diff < 0 ? 'lost' : 'gained'} ${house.emoji}`)
+        .setDescription(`${house.roleMention}`)
+        .addFields(
+            {
+                name: 'Before',
+                value: before.toString(),
+                inline: true,
+            },
+            {
+                name: diff < 0 ? 'Lost' : 'Gained',
+                value: diff.toString(),
+                inline: true,
+            },
+            {
+                name: 'Total',
+                value: after.toString(),
+                inline: true,
+            },
+            {
+                name: 'Leaderboard',
+                value: positionStr,
+                inline: true,
+            }
+        );
+
+    return embed;
+}
+
+export function createCompetitionUpdateEmbed() {
+    // noop
+}
+
+export function createUpdateLeaderboardButton(label = 'Get updates') {
+    return new ButtonBuilder()
+        .setCustomId('UPDATELEADERBOARD')
+        .setStyle(ButtonStyle.Primary)
+        .setLabel(label);
+}
+
+export function createSeeAllChangesButton(url: string) {
+    return new ButtonBuilder()
+        .setURL(url)
+        .setLabel('See all changes')
+        .setStyle(ButtonStyle.Link);
+}
