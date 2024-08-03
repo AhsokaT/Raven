@@ -266,3 +266,16 @@ export function createSeeAllChangesButton(url: string) {
         .setLabel('See all changes')
         .setStyle(ButtonStyle.Link);
 }
+
+export function createHouseChooseEmbed() {
+    return new EmbedBuilder()
+        .setColor('#2F3136')
+        .setTitle('Choose your house')
+        .setDescription('You can only join a house once, choose wisely!')
+        .addFields(
+            House.ALL.map((house) => ({
+                name: `${house.emoji} ${house.name}`,
+                value: `<@&${house.roleId}>\n-# ${house.description}`,
+            }))
+        );
+}

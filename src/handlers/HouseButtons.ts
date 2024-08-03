@@ -1,26 +1,29 @@
-import {
-    ActionRowBuilder,
-    MessageActionRowComponentBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    EmbedBuilder,
-    ButtonInteraction,
-    TextChannel,
-} from 'discord.js';
-import { House, ChannelId } from '../util/enum.js';
+import { ApplyOptions } from '@sapphire/decorators';
 import {
     InteractionHandler,
     InteractionHandlerTypes,
 } from '@sapphire/framework';
-import { ApplyOptions } from '@sapphire/decorators';
-import { HouseInfoButton, UserInfoButton } from '../util/builders.js';
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonInteraction,
+    ButtonStyle,
+    MessageActionRowComponentBuilder,
+    TextChannel,
+} from 'discord.js';
+import {
+    createHouseChooseEmbed,
+    HouseInfoButton,
+    UserInfoButton,
+} from '../util/builders.js';
+import { ChannelId, House } from '../util/enum.js';
 
 @ApplyOptions<InteractionHandler.Options>({
     interactionHandlerType: InteractionHandlerTypes.Button,
 })
 export class HouseButtons extends InteractionHandler {
     async run(interaction: ButtonInteraction) {
-        if (/^(CHOOSEHOUSE)/.test(interaction.customId)) {
+        if (interaction.customId.startsWith('CHOOSEHOUSE')) {
             const houseId = interaction.customId.split('_').pop() as House.id;
             const actionRow =
                 new ActionRowBuilder<MessageActionRowComponentBuilder>();
@@ -42,7 +45,7 @@ export class HouseButtons extends InteractionHandler {
                 embeds: [],
                 components: [actionRow],
             });
-        } else if (/^(HOUSEUNSURE)/.test(interaction.customId)) {
+        } else if (interaction.customId.startsWith('HOUSEUNSURE')) {
             const actionRow =
                 new ActionRowBuilder<MessageActionRowComponentBuilder>();
 
@@ -56,27 +59,14 @@ export class HouseButtons extends InteractionHandler {
 
             actionRow.addComponents(buttons);
 
-            const embed = new EmbedBuilder()
-                .setColor('#2F3136')
-                .setTitle('Choose your house')
-                .setDescription(
-                    'You can only join a house once, choose wisely!'
-                )
-                .addFields(
-                    House.ALL.map((house) => ({
-                        name: `${house.emoji} ${house.name}`,
-                        value: `<@&${house.roleId}>\n-# ${house.description}`,
-                    }))
-                );
-
             interaction.update({
                 content: '',
-                embeds: [embed],
+                embeds: [createHouseChooseEmbed()],
                 components: [actionRow],
             });
-        } else if (/^(HOUSECONFIRM)/.test(interaction.customId)) {
+        } else if (interaction.customId.startsWith('HOUSECONFIRM')) {
             if (!interaction.inCachedGuild())
-                return void interaction.reply({
+                return interaction.reply({
                     content: 'error',
                     ephemeral: true,
                 });
@@ -103,29 +93,24 @@ export class HouseButtons extends InteractionHandler {
             try {
                 await interaction.member.roles.add(house.roleId);
             } catch (err) {
-                interaction
-                    .editReply({
-                        content:
-                            ':x: There was an error assigning your house, try again later',
-                        components: [],
-                    })
-                    .catch(console.debug);
-
-                return console.error(err);
+                console.error(err);
+                return interaction.editReply({
+                    content:
+                        ':x: There was an error assigning your house, try again later',
+                    components: [],
+                });
             }
 
-            interaction
-                .editReply({
-                    content: `You have successfully joined **${House[selection].name}**! You now have access to <#${house.channelId}>`,
-                    components: [],
-                })
-                .catch(console.debug);
+            await interaction.editReply({
+                content: `You have successfully joined **${House[selection].name}**! You now have access to <#${house.channelId}>`,
+                components: [],
+            });
 
             const logs = (await interaction.client.channels.fetch(
                 ChannelId.Logs
             )) as TextChannel;
 
-            logs.send({
+            await logs.send({
                 content: `${interaction.user} **became ${
                     selection === 'OWL' ? 'an' : 'a'
                 }** <@&${house.roleId}>`,
@@ -136,27 +121,26 @@ export class HouseButtons extends InteractionHandler {
                     ),
                 ],
                 allowedMentions: { parse: [] },
-            }).catch(console.error);
+            });
 
             const channel = (await interaction.guild.channels.fetch(
                 house.channelId
             )) as TextChannel;
 
-            channel
+            await channel
                 .send(
                     `<@&${house.roleId}> ${interaction.user} **has joined the house!** Give them a warm welcome! :smile:`
                 )
                 .then((message) => {
                     message.react('🥳');
                     message.react(house.emoji);
-                })
-                .catch(console.error);
+                });
         }
     }
 
     parse(interaction: ButtonInteraction) {
-        return /^(CHOOSEHOUSE|HOUSEUNSURE|HOUSECONFIRM)/.test(
-            interaction.customId
+        return ['CHOOSEHOUSE', 'HOUSEUNSURE', 'HOUSECONFIRM'].some((id) =>
+            interaction.customId.startsWith(id)
         )
             ? this.some()
             : this.none();

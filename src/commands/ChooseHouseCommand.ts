@@ -3,11 +3,11 @@ import {
     MessageActionRowComponentBuilder,
     ButtonBuilder,
     ButtonStyle,
-    EmbedBuilder,
 } from 'discord.js';
 import { House } from '../util/enum.js';
 import { Command } from '@sapphire/framework';
 import { ApplyOptions } from '@sapphire/decorators';
+import { createHouseChooseEmbed } from '../util/builders.js';
 
 @ApplyOptions<Command.Options>({
     name: 'choosehouse',
@@ -44,19 +44,8 @@ export class ChooseHouseCommand extends Command {
 
         actionRow.addComponents(buttons);
 
-        const embed = new EmbedBuilder()
-            .setColor('#2F3136')
-            .setTitle('Choose your house')
-            .setDescription('You can only join a house once, choose wisely!')
-            .addFields(
-                House.ALL.map((house) => ({
-                    name: `${house.emoji} ${house.name}`,
-                    value: `<@&${house.roleId}>\n-#${house.description}`,
-                }))
-            );
-
         await interaction.reply({
-            embeds: [embed],
+            embeds: [createHouseChooseEmbed()],
             components: [actionRow],
             ephemeral: true,
         });
