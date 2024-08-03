@@ -202,8 +202,8 @@ export function createHouseUpdateEmbed(
 ) {
     let diff = after - before;
     let index = store.indexOf(house.id);
-    let inFront = store.toSorted()[index - 1];
-    let behind = store.toSorted()[index + 1];
+    let inFront = store.toSorted()[index + 1];
+    let behind = store.toSorted()[index - 1];
     let inFrontStr = inFront
         ? `, in front of ${House[inFront[0]].roleMention}`
         : '';

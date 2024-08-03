@@ -16,7 +16,7 @@ export class Test extends Command {
         if (isProduction) return;
 
         const embed = createHouseUpdateEmbed(
-            House.RAVEN,
+            House.TIGER,
             100,
             120,
             interaction.user,

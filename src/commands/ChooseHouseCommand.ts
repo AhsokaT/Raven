@@ -13,23 +13,23 @@ import { ApplyOptions } from '@sapphire/decorators';
     name: 'choosehouse',
     description: 'Choose your house!',
 })
-export class HousePicker extends Command {
-    chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+export class ChooseHouseCommand extends Command {
+    async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
         if (!interaction.inCachedGuild())
             return interaction.reply({
                 content: 'error',
                 ephemeral: true,
             });
 
-        if (
-            interaction.member.roles.cache.hasAny(
-                ...House.ALL.map((house) => house.roleId)
-            )
-        )
-            return interaction.reply({
-                content: 'You have already joined a house!',
-                ephemeral: true,
-            });
+        // if (
+        //     interaction.member.roles.cache.hasAny(
+        //         ...House.ALL.map((house) => house.roleId)
+        //     )
+        // )
+        //     return interaction.reply({
+        //         content: 'You have already joined a house!',
+        //         ephemeral: true,
+        //     });
 
         const actionRow =
             new ActionRowBuilder<MessageActionRowComponentBuilder>();
@@ -55,7 +55,7 @@ export class HousePicker extends Command {
                 }))
             );
 
-        return interaction.reply({
+        await interaction.reply({
             embeds: [embed],
             components: [actionRow],
             ephemeral: true,
