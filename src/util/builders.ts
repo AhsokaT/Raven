@@ -269,7 +269,7 @@ export function createSeeAllChangesButton(url: string) {
 
 export function createHouseChooseEmbed() {
     return new EmbedBuilder()
-        .setColor('#2F3136')
+        .setColor('#2B2D31')
         .setTitle('Choose your house')
         .setDescription('You can only join a house once, choose wisely!')
         .addFields(

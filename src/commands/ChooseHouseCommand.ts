@@ -21,15 +21,15 @@ export class ChooseHouseCommand extends Command {
                 ephemeral: true,
             });
 
-        // if (
-        //     interaction.member.roles.cache.hasAny(
-        //         ...House.ALL.map((house) => house.roleId)
-        //     )
-        // )
-        //     return interaction.reply({
-        //         content: 'You have already joined a house!',
-        //         ephemeral: true,
-        //     });
+        if (
+            interaction.member.roles.cache.hasAny(
+                ...House.ALL.map((house) => house.roleId)
+            )
+        )
+            return interaction.reply({
+                content: 'You have already joined a house!',
+                ephemeral: true,
+            });
 
         const actionRow =
             new ActionRowBuilder<MessageActionRowComponentBuilder>();

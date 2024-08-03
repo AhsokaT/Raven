@@ -8,21 +8,20 @@ import {
     ComponentType,
     EmbedBuilder,
     MessageActionRowComponentBuilder,
+    PermissionFlagsBits,
+    SlashCommandBuilder,
 } from 'discord.js';
 import { promisify } from 'util';
 import {
     allPointChangeEmbed,
     createHouseUpdateEmbed,
     createLeaderboardButton,
-    createSeeAllChangesButton,
-    pointChangeButton,
-    pointChangeEmbed,
 } from '../util/builders.js';
 import { ChannelId, House } from '../util/enum.js';
 
 @ApplyOptions<Command.Options>({
-    name: 'housepoints',
-    description: 'Add or remove points from houses',
+    name: 'setpoints',
+    description: 'Set new totals for house points',
 })
 export class HousePointsCommand extends Command {
     readonly gifs = [
@@ -292,6 +291,34 @@ export class HousePointsCommand extends Command {
         await button.reply({
             content: this.gifs[~~(Math.random() * this.gifs.length)],
             ephemeral: true,
+        });
+    }
+
+    registerApplicationCommands(registry: Command.Registry) {
+        const OptionName = {
+            RAVEN: 'ravens',
+            OWL: 'owls',
+            TIGER: 'tigers',
+            TURTLE: 'turtles',
+            PANDA: 'pandas',
+        } as const;
+
+        const builder = new SlashCommandBuilder()
+            .setName(this.name)
+            .setDescription(this.description)
+            .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
+
+        for (const house of House.ALL)
+            builder.addIntegerOption((option) =>
+                option
+                    .setName(OptionName[house.id])
+                    .setDescription(`New total points for ${house.name}`)
+                    .setRequired(false)
+            );
+
+        registry.registerChatInputCommand(builder, {
+            guildIds: ['509135025560616963'],
+            idHints: ['1269345153647247481'],
         });
     }
 }
