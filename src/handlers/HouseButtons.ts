@@ -3,13 +3,13 @@ import {
     InteractionHandler,
     InteractionHandlerTypes,
 } from '@sapphire/framework';
+import assert from 'assert/strict';
 import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
     MessageActionRowComponentBuilder,
-    TextChannel,
 } from 'discord.js';
 import {
     createHouseChooseEmbed,
@@ -40,7 +40,7 @@ export class HouseButtons extends InteractionHandler {
                     .setCustomId(`HOUSECONFIRM_${house.id}`)
             );
 
-            interaction.update({
+            await interaction.update({
                 content: `You can only join a house once, are you sure you want to join **${house.name}** <@&${house.roleId}>?`,
                 embeds: [],
                 components: [actionRow],
@@ -59,7 +59,7 @@ export class HouseButtons extends InteractionHandler {
 
             actionRow.addComponents(buttons);
 
-            interaction.update({
+            await interaction.update({
                 content: '',
                 embeds: [createHouseChooseEmbed()],
                 components: [actionRow],
@@ -106,9 +106,11 @@ export class HouseButtons extends InteractionHandler {
                 components: [],
             });
 
-            const logs = (await interaction.client.channels.fetch(
+            const logs = await interaction.client.channels.fetch(
                 ChannelId.Logs
-            )) as TextChannel;
+            );
+
+            assert(logs?.isTextBased());
 
             await logs.send({
                 content: `${interaction.user} **became ${
@@ -123,18 +125,18 @@ export class HouseButtons extends InteractionHandler {
                 allowedMentions: { parse: [] },
             });
 
-            const channel = (await interaction.guild.channels.fetch(
+            const channel = await interaction.guild.channels.fetch(
                 house.channelId
-            )) as TextChannel;
+            );
 
-            await channel
-                .send(
-                    `<@&${house.roleId}> ${interaction.user} **has joined the house!** Give them a warm welcome! :smile:`
-                )
-                .then((message) => {
-                    message.react('🥳');
-                    message.react(house.emoji);
-                });
+            assert(channel?.isTextBased());
+
+            const message = await channel.send(
+                `<@&${house.roleId}> ${interaction.user} **has joined the house!** Give them a warm welcome! :smile:`
+            );
+
+            await message.react('🥳');
+            await message.react(house.emoji);
         }
     }
 

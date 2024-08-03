@@ -23,7 +23,7 @@ import { ChannelId, House } from '../util/enum.js';
     name: 'setpoints',
     description: 'Set new totals for house points',
 })
-export class HousePointsCommand extends Command {
+export class SetPointsCommand extends Command {
     readonly gifs = [
         'https://tenor.com/view/smiling-friends-adult-swim-smiling-friends-smiling-friends-spamish-pim-pimling-smiling-friends-pim-gif-10921009947340864978',
         'https://tenor.com/view/going-crazy-mr-boss-smiling-friends-freaking-out-going-wild-gif-5258506792416434328',

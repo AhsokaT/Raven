@@ -12,6 +12,8 @@ export class HouseStore extends Map<House.id, number> {
         assert(House.ids.every(id => this.has(id)), Error('Missing house points.'));
 
         console.log('[DATABASE] => Loaded house store:', this);
+
+        return this;
     }
 
     async patch(data: [id: House.id, points: number][]) {
@@ -51,5 +53,9 @@ export class HouseStore extends Map<House.id, number> {
 
     delete(): boolean {
         throw Error('Cannot delete house points.');
+    }
+
+    static load() {
+        return new HouseStore().load();
     }
 }
