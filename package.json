@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "build": "tsup && ls dist",
-        "start": "node .",
+        "start": "ls dist && node .",
         "dev": "npm run build && node --env-file=.env ."
     },
     "keywords": [],
