@@ -4,3 +4,4 @@ node_modules
 .vscode/*
 .metals
 dist/
+package-lock.json
