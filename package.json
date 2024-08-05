@@ -5,8 +5,8 @@
     "main": "dist/index.js",
     "type": "module",
     "scripts": {
-        "build": "tsup && ls dist",
-        "start": "ls dist && node .",
+        "build": "tsup",
+        "start": "node .",
         "dev": "npm run build && node --env-file=.env ."
     },
     "keywords": [],
