@@ -9,7 +9,7 @@ export class HouseStore extends Map<House.id, number> {
         for await (const [id, points] of connection.fetch())
             this.set(id, points);
 
-        assert(House.ids.every(id => this.has(id)), Error('Missing house points.'));
+        assert(House.ids.every((id) => this.has(id)), Error('Missing house points.'));
 
         console.log('[DATABASE] => Loaded house store:', this);
 

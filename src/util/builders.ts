@@ -89,33 +89,15 @@ export function allPointChangeEmbed(
 
                     const diff = before[house] - after[house];
 
-                    const diffStr =
-                        '`' +
-                        [
-                            ...padString(
-                                [
-                                    ...`${
-                                        diff > 0 ? 'Removed' : 'Added'
-                                    } ${Math.abs(diff)} points`,
-                                ]
-                                    .reverse()
-                                    .join(''),
-                                allDiff
-                            ),
-                        ]
-                            .reverse()
-                            .join('') +
-                        '`';
-
                     return (
                         acc +
-                        `\n${diffStr} \`${padString(
+                        `\n${House[house].roleMention} ${padString(
                             before[house].toString(),
                             Object.values(before)
-                        )}\` → \`${padString(
+                        )} → ${padString(
                             after[house].toString(),
                             Object.values(after)
-                        )}\` <@&${House[house].roleId}>`
+                        )}`
                     );
                 }, '')
         );
@@ -205,10 +187,14 @@ export function createHouseUpdateEmbed(
     let inFront = store.toSorted()[index + 1];
     let behind = store.toSorted()[index - 1];
     let inFrontStr = inFront
-        ? `, ${after - inFront[1]} points ahead of ${House[inFront[0]].roleMention}`
+        ? `, ${after - inFront[1]} points ahead of ${
+              House[inFront[0]].roleMention
+          }`
         : '';
     let behindStr = behind
-        ? `${inFront ? ' and ' : ', '}${behind[1] - after} points behind ${House[behind[0]].roleMention}`
+        ? `${inFront ? ' and ' : ', '}${behind[1] - after} points behind ${
+              House[behind[0]].roleMention
+          }`
         : '';
 
     let positionStr = `You are ${toOrdinal(
@@ -222,7 +208,9 @@ export function createHouseUpdateEmbed(
             iconURL: author.displayAvatarURL(),
         })
         .setTitle(`Points ${diff < 0 ? 'lost' : 'gained'} ${house.emoji}`)
-        .setDescription(`${house.roleMention} <t:${Math.round(Date.now() / 1000)}:>`)
+        .setDescription(
+            `${house.roleMention} <t:${Math.round(Date.now() / 1000)}>`
+        )
         .addFields(
             {
                 name: 'Before',

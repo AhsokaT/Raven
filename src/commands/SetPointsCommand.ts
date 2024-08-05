@@ -52,7 +52,7 @@ export class SetPointsCommand extends Command {
                 ephemeral: true,
             });
 
-        const timeoutTimestamp = ~~((Date.now() + 60_000) / 1000);
+        const reviewChangesTimestamp = ~~((Date.now() + 5_000) / 1000);
 
         // TODO move changes to staged changes field
         const stagedEmbed = allPointChangeEmbed(
@@ -74,8 +74,8 @@ export class SetPointsCommand extends Command {
             .addFields(
                 { name: 'Staged changes', value: stagedStr ?? 'Missing value' },
                 {
-                    name: ':stopwatch: Timeout',
-                    value: `<t:${timeoutTimestamp}:R>`,
+                    name: ':stopwatch: Review changes',
+                    value: `<t:${reviewChangesTimestamp}:R>`,
                 }
             );
 
@@ -98,7 +98,7 @@ export class SetPointsCommand extends Command {
             embeds: [stagedEmbed],
             components: [
                 new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-                    commitButton,
+                    commitButton.setDisabled(true),
                     cancelButton,
                     partyButton
                 ),
@@ -284,6 +284,28 @@ export class SetPointsCommand extends Command {
         collector.on('end', (...[, reason]) => {
             if (reason === 'time')
                 interaction.deleteReply().catch(console.error);
+        });
+
+        await promisify(setTimeout)(5_000);
+
+        const timeoutTimestamp = ~~((Date.now() + 60_000) / 1000);
+
+        await reply.edit({
+            embeds: [
+                stagedEmbed
+                    .spliceFields(1, 1)
+                    .addFields({
+                        name: ':stopwatch: Timeout',
+                        value: `<t:${timeoutTimestamp}:R>`,
+                    }),
+            ],
+            components: [
+                new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                    commitButton.setDisabled(false),
+                    cancelButton,
+                    partyButton
+                ),
+            ],
         });
     }
 

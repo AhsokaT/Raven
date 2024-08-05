@@ -8,7 +8,7 @@ export class GuildMemberAdd extends Listener<Events.GuildMemberAdd> {
         if (member.guild.id !== '509135025560616963' || member.user.bot) return;
 
         const channel = await member.guild.channels.fetch(ChannelId.General);
-        assert.ok(channel?.isTextBased());
+        assert(channel?.isTextBased());
         const commands = await member.guild.commands.fetch();
         const command = commands.find(({ name }) => name === 'choosehouse');
 

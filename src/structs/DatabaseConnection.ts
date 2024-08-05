@@ -34,12 +34,12 @@ export class DatabaseConnection implements AsyncDisposable {
         return this.fetch();
     }
 
-    fetch(): AsyncGenerator<readonly [House.id, number], void, void> {
+    fetch(): AsyncGenerator<[House.id, number], void, void> {
         return this.mongo
             .db('Raven')
             .collection<House.Document>('Houses')
             .find()
-            .map((house) => [house._id, house.points] as const)
+            .map((house) => [house._id, house.points] as [House.id, number])
             [Symbol.asyncIterator]();
     }
 
