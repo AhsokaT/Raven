@@ -15,13 +15,11 @@
     "dependencies": {
         "@sapphire/decorators": "^6.1.0",
         "@sapphire/framework": "^5.2.1",
-        "debug": "^4.3.6",
         "discord.js": "^14.15.3",
         "mongodb": "^6.8.0",
         "picocolors": "^1.0.1"
     },
     "devDependencies": {
-        "@types/debug": "^4.1.12",
         "tsup": "^8.2.4",
         "typescript": "^5.5.4"
     },
