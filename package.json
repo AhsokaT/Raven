@@ -7,7 +7,7 @@
     "scripts": {
         "build": "tsup",
         "start": "node .",
-        "dev": "npm run build && node --env-file=.env ."
+        "dev": "pnpm build && node --env-file=.env ."
     },
     "keywords": [],
     "author": "",
@@ -17,13 +17,13 @@
         "@sapphire/framework": "^5.2.1",
         "debug": "^4.3.6",
         "discord.js": "^14.15.3",
-        "mongodb": "^6.8.0-dev.20240802.sha.54efb7d4",
+        "mongodb": "^6.8.0",
         "picocolors": "^1.0.1"
     },
     "devDependencies": {
         "@types/debug": "^4.1.12",
-        "tsup": "^8.2.2",
+        "tsup": "^8.2.4",
         "typescript": "^5.5.4"
     },
-    "packageManager": "pnpm@9.6.0+sha512.38dc6fba8dba35b39340b9700112c2fe1e12f10b17134715a4aa98ccf7bb035e76fd981cf0bb384dfa98f8d6af5481c2bef2f4266a24bfa20c34eb7147ce0b5e"
+    "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf"
 }
