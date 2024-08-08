@@ -1,5 +1,6 @@
 import assert from 'assert/strict';
 import { MongoClient } from 'mongodb';
+import pc from 'picocolors';
 import { House } from '../util/enum.js';
 
 export class DatabaseConnection implements AsyncDisposable {
@@ -7,11 +8,9 @@ export class DatabaseConnection implements AsyncDisposable {
 
     async [Symbol.asyncDispose]() {
         await this.mongo.close();
-        console.log('[DATABASE] => Connection closed.');
     }
 
     async patch(data: [id: House.id, points: number][]) {
-        console.log('[DATABASE] => Patching house points:', data);
         if (data.length === 0) return this.fetch();
 
         const dbOperation = ([id, points]: [id: House.id, points: number]) => ({
@@ -28,7 +27,9 @@ export class DatabaseConnection implements AsyncDisposable {
 
         if (!result.ok)
             console.warn(
-                `[DATABASE] => Bulk operation did not execute correctly.`
+                `${pc.red(
+                    'DATABASE'
+                )} Bulk operation did not execute correctly.`
             );
 
         return this.fetch();
@@ -45,6 +46,15 @@ export class DatabaseConnection implements AsyncDisposable {
 
     static async connect(url = process.env.MONGO_URL) {
         assert.ok(url, 'Missing url argument.');
-        return new DatabaseConnection(await MongoClient.connect(url));
+
+        const client = new MongoClient(url)
+            .on('connectionReady', () =>
+                console.log(`${pc.green('DATABASE')} Connection ready`)
+            )
+            .on('connectionClosed', () =>
+                console.log(`${pc.green('DATABASE')} Connection closed`)
+            );
+
+        return new DatabaseConnection(await client.connect());
     }
 }

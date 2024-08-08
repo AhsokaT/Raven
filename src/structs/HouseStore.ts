@@ -1,4 +1,5 @@
 import assert from 'assert/strict';
+import pc from 'picocolors';
 import { House } from '../util/enum.js';
 import { DatabaseConnection } from './DatabaseConnection.js';
 
@@ -11,7 +12,7 @@ export class HouseStore extends Map<House.id, number> {
 
         assert(House.ids.every((id) => this.has(id)), Error('Missing house points.'));
 
-        console.log('[DATABASE] => Loaded house store:', this);
+        console.log(`${pc.green('DATABASE')} Loaded ${pc.cyan(`${this.size} entries`)} into house store`);
 
         return this;
     }

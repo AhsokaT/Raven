@@ -3,15 +3,19 @@ import {
     SapphireClientOptions,
     StoreRegistryKey,
 } from '@sapphire/framework';
+import debug from 'debug';
 import { ClientOptions } from 'discord.js';
 import { opendir } from 'fs/promises';
 import { basename, extname, join } from 'path';
+import pc from 'picocolors';
 import { HouseStore } from '../structs/HouseStore.js';
+import { Logger } from '../structs/Logger.js';
 import { isClass, isSubclassOf } from '../util/util.js';
 
 export class Client<
     Ready extends boolean = boolean
 > extends SapphireClient<Ready> {
+    readonly debug = debug('IROH');
     readonly store: HouseStore;
     readonly irohQuotes = [
         `Sometimes life is like this dark tunnel. You can't always see the light at the end of the tunnel, but if you just keep moving... you will come to a better place.`,
@@ -25,8 +29,9 @@ export class Client<
     ];
 
     constructor(options: ClientOptions & SapphireClientOptions) {
-        super(options);
+        super({ ...options, logger: { instance: new Logger() } });
 
+        this.debug.log = console.log.bind(console);
         this.store = new HouseStore();
         this.stores
             .get('interaction-handlers')
@@ -68,7 +73,7 @@ export class Client<
     *parse<T extends abstract new (...args: any[]) => any>(
         module: unknown,
         ctor: T
-    ): Generator<T> {
+    ): Generator<T, void, void> {
         if (isClass(module) && isSubclassOf(module, ctor)) yield module;
 
         if (typeof module !== 'object' || module === null) return;
@@ -78,6 +83,15 @@ export class Client<
     }
 
     async login(token?: string) {
+        const start = performance.now();
+        this.once('ready', () =>
+            this.logger.debug(
+                `${pc.green('CLIENT')} Ready in ${pc.cyan(
+                    Math.floor(performance.now() - start) + 'ms'
+                )}`
+            )
+        );
+
         await this.store.load();
 
         for (const store of this.stores.values())
@@ -89,6 +103,7 @@ export class Client<
 
 declare module 'discord.js' {
     interface Client {
+        readonly debug: debug.Debugger;
         readonly store: HouseStore;
         readonly irohQuotes: string[];
         walk(path: string): AsyncGenerator<string>;
