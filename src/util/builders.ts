@@ -91,7 +91,7 @@ export function allPointChangeEmbed(
 
                     return (
                         acc +
-                        `\n${House[house].roleMention} ${padString(
+                        `\n${House[house].mention} ${padString(
                             before[house].toString(),
                             Object.values(before)
                         )} → ${padString(
@@ -173,13 +173,11 @@ export function createHouseUpdateEmbed(
     let inFront = store.toSorted()[index + 1];
     let behind = store.toSorted()[index - 1];
     let inFrontStr = inFront
-        ? `, ${after - inFront[1]} points ahead of ${
-              House[inFront[0]].roleMention
-          }`
+        ? `, ${after - inFront[1]} points ahead of ${House[inFront[0]].mention}`
         : '';
     let behindStr = behind
         ? `${inFront ? ' and ' : ', '}${behind[1] - after} points behind ${
-              House[behind[0]].roleMention
+              House[behind[0]].mention
           }`
         : '';
 
@@ -194,9 +192,7 @@ export function createHouseUpdateEmbed(
             iconURL: author.displayAvatarURL(),
         })
         .setTitle(`Points ${diff < 0 ? 'lost' : 'gained'} ${house.emoji}`)
-        .setDescription(
-            `${house.roleMention} <t:${Math.round(Date.now() / 1000)}>`
-        )
+        .setDescription(`${house.mention} <t:${Math.round(Date.now() / 1000)}>`)
         .addFields(
             {
                 name: 'Before',
@@ -223,8 +219,34 @@ export function createHouseUpdateEmbed(
     return embed;
 }
 
-export function createCompetitionUpdateEmbed() {
-    // noop
+export function createLeaderboardUpdateEmbed(
+    author: User,
+    before: House.Points,
+    after: House.Points
+) {
+    const fields = House.ids
+        .map((id) => [House[id], after[id], after[id] - before[id]] as const)
+        .filter(([, , diff]) => diff !== 0)
+        .sort(([, a], [, b]) => b - a)
+        .map(([house, points, diff]) => ({
+            name: `${house.name} ${house.emoji}`,
+            value: `${diff < 0 ? '**Lost' : '**Gained'} ${Math.abs(
+                diff
+            )}** points for a new total of ${points}\n-# ${
+                house.mention
+            } you are ${toOrdinal(
+                author.client.store.position(house.id)
+            )} on the leaderboard`,
+        }));
+
+    return new EmbedBuilder()
+        .setColor('#2B2D31')
+        .setAuthor({
+            name: author.username,
+            iconURL: author.displayAvatarURL(),
+        })
+        .setTitle(':trophy: Leaderboard update')
+        .addFields(fields);
 }
 
 export function createUpdateLeaderboardButton(label = 'Get updates') {

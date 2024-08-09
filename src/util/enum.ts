@@ -1,3 +1,5 @@
+import { Client } from "discord.js";
+
 export class House {
     private constructor(
         readonly id: House.id,
@@ -64,8 +66,14 @@ export class House {
         '1023373723551666296'
     );
 
-    get roleMention() {
+    get mention() {
         return `<@&${this.roleId}>`;
+    }
+
+    async fetchChannel(client: Client<true>) {
+        const channel = await client.channels.fetch(this.channelId);
+
+        return channel?.isTextBased() ? channel : null;
     }
 }
 

@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { PermissionFlagsBits } from 'discord.js';
-import { createHouseUpdateEmbed } from '../util/builders.js';
+import { createLeaderboardUpdateEmbed } from '../util/builders.js';
 import { House } from '../util/enum.js';
 
 @ApplyOptions<Command.Options>({
@@ -15,12 +15,17 @@ export class Test extends Command {
 
         if (isProduction) return;
 
-        const embed = createHouseUpdateEmbed(
-            House.TIGER,
-            100,
-            120,
+        const before = Object.fromEntries(
+            House.ids.map((id) => [id, ~~(Math.random() * 100)])
+        ) as House.Points;
+        const after = Object.fromEntries(
+            House.ids.map((id) => [id, ~~(Math.random() * 100)])
+        ) as House.Points;
+
+        const embed = createLeaderboardUpdateEmbed(
             interaction.user,
-            interaction.client.store
+            before,
+            after
         );
 
         await interaction.reply({

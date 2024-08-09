@@ -16,6 +16,7 @@ import {
     allPointChangeEmbed,
     createHouseUpdateEmbed,
     createLeaderboardButton,
+    createLeaderboardUpdateEmbed,
 } from '../util/builders.js';
 import { ChannelId, House } from '../util/enum.js';
 
@@ -206,10 +207,25 @@ export class SetPointsCommand extends Command {
                 components: [],
             });
 
-            // const logChannel = await client.channels.fetch(ChannelId.Logs);
-            // const log = logChannel?.isTextBased()
-            //     ? await logChannel.send('')
-            //     : null;
+            const channel = await client.channels.fetch(ChannelId.Trophy);
+
+            const message = channel?.isTextBased()
+                ? await channel.send({
+                      embeds: [
+                          createLeaderboardUpdateEmbed(
+                              interaction.user,
+                              current,
+                              newTotals
+                          ),
+                      ],
+                      allowedMentions: { parse: [] },
+                      components: [
+                          new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                              createLeaderboardButton()
+                          ),
+                      ],
+                  })
+                : null;
 
             for (const house of House.ALL) {
                 if (newTotals[house.id] === current[house.id]) continue;
@@ -224,60 +240,22 @@ export class SetPointsCommand extends Command {
                     client.store
                 );
 
-                // if (log)
-                //     actionRow.addComponents(
-                //         createLeaderboardButton(),
-                //         createSeeAllChangesButton(log.url)
-                //     );
                 actionRow.addComponents(createLeaderboardButton());
 
-                try {
-                    const channel = await client.channels.fetch(
-                        house.channelId
+                if (message)
+                    actionRow.addComponents(
+                        new ButtonBuilder()
+                            .setURL(message.url)
+                            .setLabel('See all updates')
+                            .setStyle(ButtonStyle.Link)
                     );
 
-                    if (!channel?.isTextBased()) continue;
+                const channel = await house.fetchChannel(interaction.client);
 
-                    await channel.send({
-                        embeds: [embed],
-                        components: [actionRow],
-                    });
-                } catch (cause) {
-                    console.error(
-                        Error('Failed to send point changes to house channel', {
-                            cause,
-                        })
-                    );
-                }
-            }
-
-            try {
-                const channels = [
-                    client.channels.fetch(ChannelId.Logs),
-                    client.channels.fetch(ChannelId.Trophy),
-                ];
-
-                for await (const channel of channels) {
-                    if (!channel?.isTextBased()) continue;
-
-                    channel.send({
-                        embeds: [
-                            allPointChangeEmbed(
-                                current,
-                                newTotals,
-                                interaction.user
-                            ),
-                        ],
-                        allowedMentions: { parse: [] },
-                        components: [
-                            new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-                                createLeaderboardButton()
-                            ),
-                        ],
-                    });
-                }
-            } catch (cause) {
-                console.error(Error('Failed to send logs', { cause }));
+                await channel?.send({
+                    embeds: [embed],
+                    components: [actionRow],
+                });
             }
         });
 
@@ -292,12 +270,10 @@ export class SetPointsCommand extends Command {
 
         await reply.edit({
             embeds: [
-                stagedEmbed
-                    .spliceFields(1, 1)
-                    .addFields({
-                        name: ':stopwatch: Timeout',
-                        value: `<t:${timeoutTimestamp}:R>`,
-                    }),
+                stagedEmbed.spliceFields(1, 1).addFields({
+                    name: ':stopwatch: Timeout',
+                    value: `<t:${timeoutTimestamp}:R>`,
+                }),
             ],
             components: [
                 new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
