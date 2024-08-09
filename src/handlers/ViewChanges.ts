@@ -8,10 +8,7 @@ import {
     ButtonInteraction,
     MessageActionRowComponentBuilder,
 } from 'discord.js';
-import {
-    DeleteInteractionButton,
-    allPointChangeEmbed,
-} from '../util/builders.js';
+import { allPointChangeEmbed } from '../util/builders.js';
 import { House } from '../util/enum.js';
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -35,9 +32,7 @@ export class ViewChanges extends InteractionHandler {
         await interaction.reply({
             embeds: [allPointChangeEmbed(before, after, interaction.user)],
             components: [
-                new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-                    DeleteInteractionButton()
-                ),
+                new ActionRowBuilder<MessageActionRowComponentBuilder>(),
             ],
             allowedMentions: { parse: [] },
         });

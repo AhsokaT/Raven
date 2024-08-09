@@ -103,18 +103,6 @@ export function allPointChangeEmbed(
         );
 }
 
-export const UpdateLeaderboardButton = (label = 'Refresh') =>
-    new ButtonBuilder()
-        .setCustomId('UPDATELEADERBOARD')
-        .setStyle(ButtonStyle.Primary)
-        .setLabel(label);
-
-export const DeleteInteractionButton = () =>
-    new ButtonBuilder()
-        .setCustomId('DELETEINTERACTION')
-        .setStyle(ButtonStyle.Danger)
-        .setEmoji('🗑️');
-
 export const UserInfoButton = (user: Snowflake, label = 'User') =>
     new ButtonBuilder()
         .setCustomId(`USERINFO_${user}`)
@@ -162,9 +150,7 @@ export function createLeaderboardEmbed(store: HouseStore) {
     return new EmbedBuilder()
         .setColor('#2B2D31')
         .setTitle(':trophy: Leaderboard')
-        .setDescription(
-            `-# Last updated <t:${Math.round(Date.now() / 1000)}:R>`
-        )
+        .setDescription(`-# As of <t:${Math.round(Date.now() / 1000)}>`)
         .addFields(store.toSorted().map(createField));
 }
 
