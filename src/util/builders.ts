@@ -201,7 +201,7 @@ export function createHouseUpdateEmbed(
             },
             {
                 name: diff < 0 ? 'Lost' : 'Gained',
-                value: diff.toString(),
+                value: Math.abs(diff).toString(),
                 inline: true,
             },
             {
@@ -246,6 +246,7 @@ export function createLeaderboardUpdateEmbed(
             iconURL: author.displayAvatarURL(),
         })
         .setTitle(':trophy: Leaderboard update')
+        .setDescription(`<t:${Math.round(Date.now() / 1000)}>`)
         .addFields(fields);
 }
 

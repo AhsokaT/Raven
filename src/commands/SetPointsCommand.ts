@@ -255,6 +255,7 @@ export class SetPointsCommand extends Command {
                 await channel?.send({
                     embeds: [embed],
                     components: [actionRow],
+                    allowedMentions: { parse: ['roles'] }
                 });
             }
         });
