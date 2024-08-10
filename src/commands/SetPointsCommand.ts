@@ -2,6 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import {
     ActionRowBuilder,
+    ApplicationCommandOptionType,
     ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
@@ -255,7 +256,7 @@ export class SetPointsCommand extends Command {
                 await channel?.send({
                     embeds: [embed],
                     components: [actionRow],
-                    allowedMentions: { parse: ['roles'] }
+                    allowedMentions: { parse: ['roles'] },
                 });
             }
         });
@@ -302,22 +303,24 @@ export class SetPointsCommand extends Command {
             PANDA: 'pandas',
         } as const;
 
-        const builder = new SlashCommandBuilder()
-            .setName(this.name)
-            .setDescription(this.description)
-            .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
+        const command = {
+            name: this.name,
+            description: this.description,
+            options: House.ALL.map(
+                (house) =>
+                    ({
+                        name: OptionName[house.id],
+                        description: `New total points for ${house.name}`,
+                        required: false,
+                        type: ApplicationCommandOptionType.Integer,
+                    } as const)
+            ),
+            defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
+        };
 
-        for (const house of House.ALL)
-            builder.addIntegerOption((option) =>
-                option
-                    .setName(OptionName[house.id])
-                    .setDescription(`New total points for ${house.name}`)
-                    .setRequired(false)
-            );
-
-        registry.registerChatInputCommand(builder, {
+        registry.registerChatInputCommand(command, {
             guildIds: ['509135025560616963'],
-            idHints: ['1269345153647247481'],
+            idHints: ['1271720663744380928'],
         });
     }
 }
