@@ -10,7 +10,7 @@ import {
 } from 'discord.js';
 import {
     createLeaderboardEmbed,
-    createUpdateLeaderboardButton
+    createUpdateLeaderboardButton,
 } from '../util/builders.js';
 
 @ApplyOptions<InteractionHandler.Options>({

@@ -8,13 +8,9 @@ import { EmbedBuilder } from 'discord.js';
 })
 export class Ping extends Command {
     async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-        const reply = await interaction.deferReply({
-            ephemeral: true,
-            fetchReply: true,
-        });
-
+        await interaction.deferReply({ flags: 'Ephemeral' });
+        const reply = await interaction.fetchReply();
         const ping = reply.createdTimestamp - interaction.createdTimestamp;
-
         const embed = new EmbedBuilder()
             .setTitle(`:ping_pong: **Pong!**`)
             .setColor(`#2B2D31`)

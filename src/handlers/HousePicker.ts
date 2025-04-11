@@ -35,11 +35,11 @@ export class HousePicker extends InteractionHandler {
         )
             return interaction.reply({
                 content: 'You cannot join another house',
-                ephemeral: true,
+                flags: 'Ephemeral',
             });
 
         await interaction.reply({
-            ephemeral: true,
+            flags: 'Ephemeral',
             content: `Are you sure you want to join **${house.name}** <@&${house.roleId}>? Once you join, you cannot change your house`,
             allowedMentions: { parse: [] },
             components: [

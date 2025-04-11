@@ -11,7 +11,7 @@ import { ButtonInteraction } from 'discord.js';
 export class HouseInfo extends InteractionHandler {
     async run(interaction: ButtonInteraction) {
         await interaction.reply({
-            ephemeral: true,
+            flags: 'Ephemeral',
             content: 'This button does nothing yet!',
         });
     }

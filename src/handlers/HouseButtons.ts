@@ -110,7 +110,7 @@ export class HouseButtons extends InteractionHandler {
                 ChannelId.Logs
             );
 
-            assert(logs?.isTextBased());
+            assert(logs?.isSendable());
 
             await logs.send({
                 content: `${interaction.user} **became ${

@@ -6,7 +6,6 @@ import {
 import { ClientOptions } from 'discord.js';
 import { opendir } from 'fs/promises';
 import { basename, extname, join } from 'path';
-import pc from 'picocolors';
 import { HouseStore } from '../structs/HouseStore.js';
 import { Logger } from '../structs/Logger.js';
 import { isClass, isSubclassOf } from '../util/util.js';
@@ -80,15 +79,6 @@ export class Client<
     }
 
     async login(token?: string) {
-        const start = performance.now();
-        this.once('ready', () =>
-            this.logger.debug(
-                `${pc.green('CLIENT')} Ready in ${pc.cyan(
-                    Math.floor(performance.now() - start) + 'ms'
-                )}`
-            )
-        );
-
         await this.store.load();
 
         for (const store of this.stores.values())

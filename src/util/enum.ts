@@ -1,4 +1,4 @@
-import { Client } from "discord.js";
+import { Client } from 'discord.js';
 
 export class House {
     private constructor(
@@ -73,7 +73,7 @@ export class House {
     async fetchChannel(client: Client<true>) {
         const channel = await client.channels.fetch(this.channelId);
 
-        return channel?.isTextBased() ? channel : null;
+        return channel?.isSendable() ? channel : null;
     }
 }
 

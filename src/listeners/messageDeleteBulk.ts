@@ -9,7 +9,7 @@ export class MessageBulkDeleteListener extends Listener<Events.MessageBulkDelete
 
         const logs = await channel.client.channels.fetch(ChannelId.Logs);
 
-        assert(logs?.isTextBased());
+        assert(logs?.isSendable());
 
         const embed = new EmbedBuilder()
             .setColor('#2B2D31')

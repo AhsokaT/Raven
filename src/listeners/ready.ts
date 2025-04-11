@@ -4,6 +4,12 @@ import { Client } from '../client/Client.js';
 
 export class Ready extends Listener<typeof Events.ClientReady> {
     run(ready: Client<true>) {
-        console.debug(`${pc.green('CLIENT')} Logged in as ${pc.cyan(ready.user.username)}`);
+        console.log(
+            pc.green('CLIENT'),
+            pc.cyan(ready.user.username),
+            'ready in',
+            process.uptime(),
+            'seconds'
+        );
     }
 }

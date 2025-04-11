@@ -12,16 +12,24 @@ export class HouseStore extends Map<House.id, number> {
 
         assert(House.ids.every((id) => this.has(id)), Error('Missing house points.'));
 
-        console.log(`${pc.green('DATABASE')} Loaded ${pc.cyan(`${this.size} entries`)} into house store`);
+        console.log(
+            pc.green('DATABASE'),
+            'Loaded',
+            pc.cyan(`${this.size} entries`),
+            'into house store',
+        );
 
         return this;
     }
 
     async patch(data: [id: House.id, points: number][]) {
+        const start = performance.now();
         await using connection = await DatabaseConnection.connect();
 
         for await (const [id, points] of await connection.patch(data))
             this.set(id, points);
+
+        return performance.now() - start;
     }
 
     get(id: House.id): number {
@@ -37,7 +45,7 @@ export class HouseStore extends Map<House.id, number> {
     }
 
     toSorted() {
-        return [...this.entries()].sort(([, a], [, b]) => b - a);
+        return this.entries().toArray().sort(([, a], [, b]) => b - a);
     }
 
     indexOf(id: House.id): number {
@@ -52,11 +60,7 @@ export class HouseStore extends Map<House.id, number> {
         return new Map(this);
     }
 
-    delete(): boolean {
+    delete(): never {
         throw Error('Cannot delete house points.');
-    }
-
-    static load() {
-        return new HouseStore().load();
     }
 }

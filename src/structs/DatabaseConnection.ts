@@ -35,26 +35,41 @@ export class DatabaseConnection implements AsyncDisposable {
         return this.fetch();
     }
 
-    fetch(): AsyncGenerator<[House.id, number], void, void> {
-        return this.mongo
+    async *fetch(): AsyncGenerator<[House.id, number], void, void> {
+        const cursor = this.mongo
             .db('Raven')
             .collection<House.Document>('Houses')
-            .find()
-            .map((house) => [house._id, house.points] as [House.id, number])
-            [Symbol.asyncIterator]();
+            .find();
+
+        for await (const doc of cursor) yield [doc._id, doc.points];
     }
 
-    static async connect(url = process.env.MONGO_URL) {
-        assert.ok(url, 'Missing url argument.');
+    static async connect() {
+        return new DatabaseConnection(await this.mongo.connect());
+    }
 
-        const client = new MongoClient(url)
+    static mongo: MongoClient;
+
+    static {
+        assert(
+            process.env.MONGO_URL,
+            'Missing MONGO_URL environment variable.'
+        );
+
+        this.mongo = new MongoClient(process.env.MONGO_URL)
             .on('connectionReady', () =>
-                console.log(`${pc.green('DATABASE')} Connection ready`)
+                console.log(
+                    pc.green('DATABASE'),
+                    'Connection',
+                    pc.yellow('ready')
+                )
             )
             .on('connectionClosed', () =>
-                console.log(`${pc.green('DATABASE')} Connection closed`)
+                console.log(
+                    pc.green('DATABASE'),
+                    'Connection',
+                    pc.red('closed')
+                )
             );
-
-        return new DatabaseConnection(await client.connect());
     }
 }

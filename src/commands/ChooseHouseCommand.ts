@@ -18,7 +18,7 @@ export class ChooseHouseCommand extends Command {
         if (!interaction.inCachedGuild())
             return interaction.reply({
                 content: 'error',
-                ephemeral: true,
+                flags: 'Ephemeral',
             });
 
         if (
@@ -28,7 +28,7 @@ export class ChooseHouseCommand extends Command {
         )
             return interaction.reply({
                 content: 'You have already joined a house!',
-                ephemeral: true,
+                flags: 'Ephemeral',
             });
 
         const actionRow =
@@ -47,7 +47,7 @@ export class ChooseHouseCommand extends Command {
         await interaction.reply({
             embeds: [createHouseChooseEmbed()],
             components: [actionRow],
-            ephemeral: true,
+            flags: 'Ephemeral',
         });
     }
 }

@@ -10,9 +10,8 @@ import {
     EmbedBuilder,
     MessageActionRowComponentBuilder,
     PermissionFlagsBits,
-    SlashCommandBuilder,
 } from 'discord.js';
-import { promisify } from 'util';
+import { setTimeout } from 'node:timers/promises';
 import {
     allPointChangeEmbed,
     createHouseUpdateEmbed,
@@ -51,7 +50,7 @@ export class SetPointsCommand extends Command {
         if (changes.length === 0)
             return interaction.reply({
                 content: 'No changes were made',
-                ephemeral: true,
+                flags: 'Ephemeral',
             });
 
         const reviewChangesTimestamp = ~~((Date.now() + 5_000) / 1000);
@@ -118,13 +117,12 @@ export class SetPointsCommand extends Command {
             if (button.user.id !== interaction.user.id)
                 return button.reply({
                     content: 'You do not have permission to use this',
-                    ephemeral: true,
+                    flags: 'Ephemeral',
                 });
 
             collector.stop();
 
             if (button.customId === 'cancel') return reply.delete();
-
             if (button.customId !== 'commit') return reply.delete();
 
             await button.update({
@@ -147,9 +145,9 @@ export class SetPointsCommand extends Command {
                 ],
             });
 
-            let time = performance.now();
+            let time: number;
             try {
-                await client.store.patch(changes);
+                time = await client.store.patch(changes);
             } catch (error) {
                 console.error(error);
 
@@ -169,15 +167,16 @@ export class SetPointsCommand extends Command {
                     components: [],
                 });
 
-                await promisify(setTimeout)(30_000);
+                await setTimeout(30_000);
 
                 try {
                     await button.deleteReply();
                 } catch (error) {
                     console.error(error);
                 }
+
+                return;
             }
-            time = performance.now() - time;
 
             const embed = new EmbedBuilder()
                 .setColor('#2B2D31')
@@ -210,7 +209,7 @@ export class SetPointsCommand extends Command {
 
             const channel = await client.channels.fetch(ChannelId.Trophy);
 
-            const message = channel?.isTextBased()
+            const message = channel?.isSendable()
                 ? await channel.send({
                       embeds: [
                           createLeaderboardUpdateEmbed(
@@ -266,7 +265,7 @@ export class SetPointsCommand extends Command {
                 interaction.deleteReply().catch(console.error);
         });
 
-        await promisify(setTimeout)(5_000);
+        await setTimeout(5_000);
 
         const timeoutTimestamp = ~~((Date.now() + 60_000) / 1000);
 
@@ -290,7 +289,7 @@ export class SetPointsCommand extends Command {
     async party(button: ButtonInteraction) {
         await button.reply({
             content: this.gifs[~~(Math.random() * this.gifs.length)],
-            ephemeral: true,
+            flags: 'Ephemeral',
         });
     }
 
